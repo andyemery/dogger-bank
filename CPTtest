@@ -1,0 +1,56 @@
+#import stuff
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import PathPatch
+import matplotlib as mpl
+import pandas as pd
+
+#load data
+df = pd.read_csv('Secret Data Comes From Here',header=8,delimiter=';')
+
+#load ScientificColourMaps colourmap (http://www.fabiocrameri.ch/colourmaps.php)
+cm_data = np.loadtxt('Y:\Resources\ScientificColourMaps4\\lajolla\\lajolla.txt')
+lajolla = LinearSegmentedColormap.from_list('CBname', cm_data)
+lajolla_r = lajolla.reversed()
+
+
+#Define x and y values
+x = df.MPa.values
+y = df.m.values
+
+
+# Set up the figure.
+fig, ax = plt.subplots(figsize=(5, 10))
+
+# Make the background 'image'.
+im = ax.imshow(x.reshape(-1,1),
+               aspect='auto',
+               origin='lower',
+               extent=[x.min(),x.max(),y.min(),y.max()],
+               cmap=lajolla_r
+              )
+
+# Draw the path.
+paths = ax.fill_betweenx(y, x, x.min(),
+                         facecolor='none',
+                         lw=2,
+                         edgecolor='black',
+                        )
+
+# Make the 'fill' mask and clip the background image with it.
+patch = PathPatch(paths._paths[0], visible=False)
+ax.add_artist(patch)
+im.set_clip_path(patch)
+
+# Finish up.
+mpl.rc('font', family='Arial')
+plt.xlabel('Cone resistance qc (MPa)',fontsize=22)
+plt.xticks(np.arange(0,65,step=5),fontsize=18)
+plt.ylabel('Depth (m)',fontsize=22)
+plt.yticks(np.arange(0,42,step=2),fontsize=18)
+plt.minorticks_on()
+plt.xlim(0,60)
+plt.ylim(40,0)
+plt.savefig('CPTtest2.png')
+plt.show()
